@@ -9,6 +9,7 @@ import fitz # PyMuPDF
 import pytesseract
 
 from .models import OCRPage
+from .azure_ocr import AzureOCR
 
 MIN_TEXT_LENGTH = 20
 RASTER_ZOOM = 2.5 # ~360-450 DPI Equivalent
@@ -47,7 +48,8 @@ def _parse_page_range(spec: str | None, total_pages: int) -> List[int]:
     return sorted(set(pages))
 
 def _image_to_text_and_confidence(image: Image.Image, language: str) -> Tuple[str, float | None]:
-    text = pytesseract.image_to_string(image, lang=language) or ''
+    custom_config = r'--oem 3 --psm 6'
+    text = pytesseract.image_to_string(image, lang=language, config=custom_config) or ''
     data = pytesseract.image_to_data(
         image,
         lang=language,
@@ -98,4 +100,33 @@ def get_ocr_doc_results(
             OCRPage.Source.OCR,
             text,
             confidence,
+        )
+        
+
+def azure_read_text(
+    path: str, pages: str | None = None,
+) -> list[tuple[int, str]]:
+    client = AzureOCR()
+    response = client.analyze_file(path, pages=pages)
+    print(f"Azure analyze: pages={len(response.pages)}, chars={len(response.full_text or '')}")
+
+    raw_pages = list(getattr(response.result, "pages", []) or [])
+
+    for i, az_page in enumerate(response.pages):
+        avg_conf = None
+        if i < len(raw_pages):
+            words = getattr(raw_pages[i], "words", None) or []
+            confs = []
+            for w in words:
+                c = w["confidence"] if isinstance(w, dict) else getattr(w, "confidence", None)
+                if isinstance(c, (int, float)):
+                    confs.append(float(c))
+            if confs:
+                avg_conf = sum(confs) / len(confs)
+
+        yield OCRResult(
+            page_number=az_page.page_number,
+            source=OCRPage.Source.OCR,
+            text=az_page.text,
+            average_confidence=avg_conf,
         )

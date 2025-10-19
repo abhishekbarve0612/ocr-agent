@@ -12,3 +12,5 @@ __pycache__
 .coverage.xml
 .coverage.json
 .coverage.yaml
+
+media

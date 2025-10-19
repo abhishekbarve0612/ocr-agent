@@ -12,6 +12,7 @@
       --muted: #64748b;
       --text: #0f172a;
       --primary: #2563eb;
+      --danger: #dc2626;
       --primary-700: #1d4ed8;
       --ring: rgba(37, 99, 235, 0.45);
       --border: #e5e7eb;
@@ -151,10 +152,21 @@
       transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
     }
 
+    .file-item a.delete-btn {
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
     @media (hover: hover) and (pointer: fine) {
       .file-item a:hover {
         background: #f1f5f9;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      }
+
+      .file-item a.delete-btn:hover {
+        background: var(--danger);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.22);
       }
     }
 
@@ -166,6 +178,7 @@
       padding: 1rem;
       text-align: center;
     }
+
 
   </style>
 
@@ -194,12 +207,20 @@
           <li class="file-item">
             <a href="{{ f.file.url }}" title="{{ f.file.name }}">{{ f.file.name }}</a>
             <a href="{% url 'ocr:start' f.id %}" class="btn">Run OCR</a>
+            <a href="{% url 'uploads:delete' f.id %}" class="btn delete-btn">Delete</a>
           </li>
         {% empty %}
           <li class="empty-state">No files yet.</li>
         {% endfor %}
       </ul>
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

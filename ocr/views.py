@@ -4,7 +4,7 @@ from django.utils import timezone
 from uploads.models import UploadedFile
 from .models import OCRDocument, OCRPage
 from .forms import OCRStartForm
-from .services import get_ocr_doc_results
+from .services import get_ocr_doc_results, azure_read_text
 
 def start_ocr(request, file_id: int):
     file_obj = get_object_or_404(UploadedFile, id=file_id)
@@ -15,35 +15,41 @@ def start_ocr(request, file_id: int):
             page_range = form.cleaned_data['page_range'] or 'all'
             languages = form.cleaned_data['languages'] or 'eng'
             
-            document = OCRDocument.objects.create(
-                document = file_obj,
-                page_range = page_range,
-                languages = languages,
-                status = OCRDocument.Status.PENDING,
-            )
-            document.status = OCRDocument.Status.PROCESSING
-            document.started_at = timezone.now()
-            document.save(update_fields=['status', 'started_at'])
-            
-            try:
-                for result in get_ocr_doc_results(file_obj.file.path, page_range, languages):
-                    OCRPage.objects.update_or_create(
-                        document=document,
-                        page_number=result.page_number,
-                        defaults={
-                            'source': result.source,
-                            'text': result.text,
-                            'average_confidence': result.average_confidence,
-                        }
-                    )
-                document.status = OCRDocument.Status.COMPLETED
-            except Exception as e:
-                document.status = OCRDocument.Status.FAILED
-                document.error_message = str(e)
-            finally:
-                document.completed_at = timezone.now()
-                document.save(update_fields=['status', 'error_message', 'completed_at'])
-            return redirect('ocr:document_detail', file_id=document.id)
+            document = OCRDocument.objects.filter(document=file_obj).order_by('-created_at').first()
+            print(f"Documents: {document.id}")
+            if document:
+                return redirect('ocr:document_detail', file_id=document.id)
+            else:
+                document = OCRDocument.objects.create(
+                    document = file_obj,
+                    page_range = page_range,
+                    languages = languages,
+                    status = OCRDocument.Status.PENDING,
+                )
+                document.status = OCRDocument.Status.PROCESSING
+                document.started_at = timezone.now()
+                document.save(update_fields=['status', 'started_at'])
+                
+                try:
+                    for result in azure_read_text(file_obj.file.path, page_range):
+                        print(f"Result: {result}")
+                        OCRPage.objects.update_or_create(
+                            document=document,
+                            page_number=result.page_number,
+                            defaults={
+                                'source': result.source,
+                                'text': result.text,
+                                'average_confidence': result.average_confidence,
+                            }
+                        )
+                    document.status = OCRDocument.Status.COMPLETED
+                except Exception as e:
+                    document.status = OCRDocument.Status.FAILED
+                    document.error_message = str(e)
+                finally:
+                    document.completed_at = timezone.now()
+                    document.save(update_fields=['status', 'error_message', 'completed_at'])
+                return redirect('ocr:document_detail', file_id=document.id)
     else:
         form = OCRStartForm()
         

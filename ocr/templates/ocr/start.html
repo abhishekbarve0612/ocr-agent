@@ -1,13 +1,150 @@
 <!DOCTYPE html>
-<html>
-<head><title>Start OCR</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start OCR</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-700: #1d4ed8;
+      --border: #e5e7eb;
+      --ring: rgba(37, 99, 235, 0.45);
+      --danger: #dc2626;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                   Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.6;
+      font-size: 1.5rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 2.5rem;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 1rem 0;
+    }
+
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    form p { margin: 0 0 1rem 0; }
+
+    .form { display: grid; gap: 1rem; }
+    .form-field { display: grid; gap: 0.5rem; }
+    .label { font-weight: 600; }
+
+    .form input,
+    .form select,
+    .form textarea,
+    .control {
+      width: 100%;
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1rem 1.25rem;
+      transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+    }
+    .form input:focus-visible,
+    .form select:focus-visible,
+    .form textarea:focus-visible,
+    .control:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-color: var(--primary); }
+
+    .help { color: var(--muted); font-size: 1rem; }
+    .error-text { color: var(--danger); font-size: 1rem; }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 0;
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--primary);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+      transition: background-color 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+      cursor: pointer;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover { background: var(--primary-700); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22); }
+    }
+
+    .btn:active { opacity: 0.96; }
+
+    .back-link {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 200ms ease, opacity 200ms ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .back-link:hover { opacity: 0.8; }
+    }
+  </style>
+</head>
 <body>
-  <h1>Run OCR: {{ file_obj.file.name }}</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Start</button>
-  </form>
-  <p><a href="{% url 'uploads:file' %}">Back</a></p>
+  <div class="container">
+    <h1 class="title">Run OCR: {{ file_obj.file.name }}</h1>
+    <div class="panel">
+      <form class="form" method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="error-text">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="form-field">
+          <label class="label" for="{{ form.page_range.id_for_label }}">{{ form.page_range.label|default:"Page range" }}</label>
+          {{ form.page_range }}
+          {% if form.page_range.help_text %}
+            <div class="help">{{ form.page_range.help_text }}</div>
+          {% endif %}
+          {% if form.page_range.errors %}
+            <div class="error-text">{{ form.page_range.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-field">
+          <label class="label" for="{{ form.languages.id_for_label }}">{{ form.languages.label|default:"Languages" }}</label>
+          {{ form.languages }}
+          {% if form.languages.help_text %}
+            <div class="help">{{ form.languages.help_text }}</div>
+          {% endif %}
+          {% if form.languages.errors %}
+            <div class="error-text">{{ form.languages.errors }}</div>
+          {% endif %}
+        </div>
+
+        <button class="btn" type="submit">Start</button>
+      </form>
+    </div>
+    <p style="margin-top: 1rem;"><a class="back-link" href="{% url 'uploads:file' %}">Back</a></p>
+  </div>
 </body>
 </html>
