@@ -28,7 +28,7 @@ def _is_pdf(path: str) -> bool:
     mime_type, _ = mimetypes.guess_type(path)
     return (mime_type == 'application/pdf') or path.lower().endswith('.pdf')
 
-def _parse_page_range(spec: str | None, total_pages: int) -> List[int]:
+def parse_page_range(spec: str | None, total_pages: int) -> List[int]:
     if not spec or spec.strip().lower() == 'all':
         return list(range(1, total_pages + 1))
     
@@ -70,7 +70,7 @@ def get_ocr_doc_results(
         with fitz.open(path) as doc:
             total = len(doc)
             print(f"Total pages: {total}")
-            for page_number in _parse_page_range(page_range_spec, total):
+            for page_number in parse_page_range(page_range_spec, total):
                 page = doc[page_number - 1]
                 text_layer = (page.get_text('text') or '').strip()
                 if len(text_layer) >= MIN_TEXT_LENGTH:

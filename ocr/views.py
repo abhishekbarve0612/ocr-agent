@@ -4,7 +4,7 @@ from django.utils import timezone
 from uploads.models import UploadedFile
 from .models import OCRDocument, OCRPage
 from .forms import OCRStartForm
-from .services import get_ocr_doc_results, azure_read_text
+from .services import get_ocr_doc_results, azure_read_text, parse_page_range
 
 def start_ocr(request, file_id: int):
     file_obj = get_object_or_404(UploadedFile, id=file_id)
@@ -18,7 +18,8 @@ def start_ocr(request, file_id: int):
             document = OCRDocument.objects.filter(document=file_obj).order_by('-created_at').first()
             print(f"Documents: {document.id}")
             if document:
-                return redirect('ocr:document_detail', file_id=document.id)
+                from django.urls import reverse
+                return redirect(f"{reverse('ocr:document_detail', kwargs={'file_id': document.id})}?page_range={page_range}")
             else:
                 document = OCRDocument.objects.create(
                     document = file_obj,
@@ -49,7 +50,8 @@ def start_ocr(request, file_id: int):
                 finally:
                     document.completed_at = timezone.now()
                     document.save(update_fields=['status', 'error_message', 'completed_at'])
-                return redirect('ocr:document_detail', file_id=document.id)
+                from django.urls import reverse
+                return redirect(f"{reverse('ocr:document_detail', kwargs={'file_id': document.id})}?page_range={page_range}")
     else:
         form = OCRStartForm()
         
@@ -63,9 +65,17 @@ def start_ocr(request, file_id: int):
     )
     
 def document_detail(request, file_id: int):
-    print(f"Document detail for file -------------------------------------------- {file_id}")
+    page_range = request.GET.get('page_range')
+    print(f"Document detail for file -------------------------------------------- {file_id} page_range={page_range}")
     document = get_object_or_404(OCRDocument, id=file_id)
-    pages = document.pages.all()
+    if page_range:
+        # parse user-supplied page_range like "1-2"
+        # Assume document.document.file.size or (better) document.pages.count()
+        total_pages = document.pages.count()
+        pages_list = parse_page_range(page_range, total_pages)
+        pages = document.pages.filter(page_number__in=pages_list)
+    else:
+        pages = document.pages.all()
     full_text = '\n\n'.join(page.text for page in pages)
     return render(
         request,
