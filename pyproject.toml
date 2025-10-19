@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ocr-agent"
+version = "0.1.0"
+description = ""
+authors = ["Abhishek Barve <barveabhishek.ab@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+django = "^5.2.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
