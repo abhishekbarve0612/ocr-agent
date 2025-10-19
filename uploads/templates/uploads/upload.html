@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>File Upload</title>
+  <style>
+
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --muted: #64748b;
+      --text: #0f172a;
+      --primary: #2563eb;
+      --primary-700: #1d4ed8;
+      --ring: rgba(37, 99, 235, 0.45);
+      --border: #e5e7eb;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+                   Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.6;
+      font-size: 1.5rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 2.5rem;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 24px 0 20px 0;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.25rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .upload-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    form p {
+      margin: 0;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+    }
+
+    input[type="file"]:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 0;
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--primary);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+      transition: background-color 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+      cursor: pointer;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover {
+        background: var(--primary-700);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22);
+      }
+    }
+
+    .btn:active {
+      opacity: 0.96;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+    }
+
+    .file-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .file-item a {
+      display: block;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 1rem 1.5rem;
+      color: var(--text);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .file-item a:hover {
+        background: #f1f5f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      }
+    }
+
+    .empty-state {
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 0;
+      padding: 1rem;
+      text-align: center;
+    }
+
+  </style>
+
+  </head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="title">Upload a file</h1>
+        <p class="subtitle">Select a file and click upload to store it.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="upload-card">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn" type="submit">Upload</button>
+        </form>
+      </div>
+
+      <h2 class="section-title">Uploaded Files</h2>
+      <ul class="file-list">
+        {% for f in files %}
+          <li class="file-item"><a href="{{ f.file.url }}" title="{{ f.file.name }}">{{ f.file.name }}</a></li>
+        {% empty %}
+          <li class="empty-state">No files yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
