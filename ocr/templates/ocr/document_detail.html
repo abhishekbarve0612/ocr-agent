@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>OCR Job #{{ document.id }}</title></head>
+<body>
+  <h1>OCR Job #{{ document.id }}</h1>
+  <p>Status: {{ document.status }}</p>
+  {% if document.error_message %}<pre style="color:red">{{ document.error_message }}</pre>{% endif %}
+
+  <h2>Pages</h2>
+  <ul>
+    {% for p in pages %}
+      <li>
+        <strong>Page {{ p.page_number }}</strong> ({{ p.source }}{% if p.average_confidence %}, conf ~ {{ p.average_confidence|floatformat:1 }}{% endif %})
+        <pre style="white-space:pre-wrap">{{ p.text|truncatechars:500 }}</pre>
+      </li>
+    {% empty %}
+      <li>No pages processed yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Full Text</h2>
+  <pre style="white-space:pre-wrap">{{ full_text|truncatechars:5000 }}</pre>
+
+  <p><a href="{% url 'uploads:file' %}">Back</a></p>
+</body>
+</html>

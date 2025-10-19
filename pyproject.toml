@@ -8,6 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.13"
 django = "^5.2.7"
+pymupdf = "^1.26.5"
+pytesseract = "^0.3.13"
+pillow = "^12.0.0"
 
 
 [build-system]

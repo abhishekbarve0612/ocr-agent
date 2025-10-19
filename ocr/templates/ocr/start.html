@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>Start OCR</title></head>
+<body>
+  <h1>Run OCR: {{ file_obj.file.name }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Start</button>
+  </form>
+  <p><a href="{% url 'uploads:file' %}">Back</a></p>
+</body>
+</html>

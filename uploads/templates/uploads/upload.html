@@ -191,7 +191,10 @@
       <h2 class="section-title">Uploaded Files</h2>
       <ul class="file-list">
         {% for f in files %}
-          <li class="file-item"><a href="{{ f.file.url }}" title="{{ f.file.name }}">{{ f.file.name }}</a></li>
+          <li class="file-item">
+            <a href="{{ f.file.url }}" title="{{ f.file.name }}">{{ f.file.name }}</a>
+            <a href="{% url 'ocr:start' f.id %}" class="btn">Run OCR</a>
+          </li>
         {% empty %}
           <li class="empty-state">No files yet.</li>
         {% endfor %}
