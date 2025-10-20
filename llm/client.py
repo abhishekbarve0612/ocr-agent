@@ -26,7 +26,7 @@ def chat_markdown(instruction: str, prompt: str, *, model: str, temperature: flo
         {"role": "user", "content": prompt},
     ]
 
-    resp = client().chat.completions.create(
+    response = client().chat.completions.create(
         model=model,
         messages=messages,
         temperature=temperature,
@@ -34,11 +34,11 @@ def chat_markdown(instruction: str, prompt: str, *, model: str, temperature: flo
         response_format={"type": "text"},
     )
 
-    content = resp.choices[0].message.content or ""
+    content = response.choices[0].message.content or ""
     usage = {
-        "prompt_tokens": getattr(resp.usage, "prompt_tokens", None),
-        "completion_tokens": getattr(resp.usage, "completion_tokens", None),
-        "total_tokens": getattr(resp.usage, "total_tokens", None),
-        "id": getattr(resp, "id", None),
+        "prompt_tokens": getattr(response.usage, "prompt_tokens", None),
+        "completion_tokens": getattr(response.usage, "completion_tokens", None),
+        "total_tokens": getattr(response.usage, "total_tokens", None),
+        "id": getattr(response, "id", None),
     }
     return content, usage
