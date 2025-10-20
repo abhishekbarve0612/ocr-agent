@@ -1,0 +1,142 @@
+{% load static %}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f7f9;
+        --fg: #0f172a;
+        --muted: #64748b;
+        --card-bg: #ffffff;
+        --border: rgba(15, 23, 42, 0.08);
+        --shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+        --accent: #2563eb;
+        --accent-600: #1d4ed8;
+      }
+
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.5;
+        background: var(--bg);
+        color: var(--fg);
+      }
+
+      .page {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+      }
+
+      h1 {
+        margin: 0 0 16px 0;
+        font-size: 1.75rem;
+        letter-spacing: -0.02em;
+      }
+
+      .subtle { margin: 0 0 1.24px 0; color: var(--muted); font-size: 0.875rem; }
+
+      .alert {
+        margin: 0 0 16px 0;
+        padding: 0.75rem 0.875rem;
+        border: 1px solid rgba(220, 38, 38, 0.25);
+        background: rgba(239, 68, 68, 0.08);
+        color: #991b1b;
+        border-radius: 0.75rem;
+      }
+
+      form { margin: 0; }
+      .field { margin: 0 0 14px 0; }
+      label { display: block; margin: 0 0 8px 0; font-weight: 600; font-size: 0.875rem; }
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 0.75rem 0.875rem;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--fg);
+        border-radius: 0.75rem;
+        transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+      }
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        margin-top: 6px;
+        padding: 0.75rem 1rem;
+        border: 0;
+        border-radius: 0.75rem;
+        background: var(--accent);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+        will-change: transform, background-color;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        button[type="submit"]:hover {
+          background: var(--accent-600);
+          transform: translateY(-1px);
+          box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+      }
+
+      button[type="submit"]:active { transform: translateY(0); }
+
+      .help { margin: 16px 0 0 0; font-size: 14px; }
+      .help a { color: var(--muted); text-underline-offset: 3px; transition: color 200ms ease; }
+      .help a:hover { color: var(--accent-600); }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        button[type="submit"] { transform: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <h1>Sign in</h1>
+        <p class="subtle">Welcome back. Please enter your credentials.</p>
+        {% if form.non_field_errors %}<div class="alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <form method="post" action="{% url 'accounts:login' %}">
+          {% csrf_token %}
+          <div class="field">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+          </div>
+          <div class="field">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+          </div>
+          <button type="submit">Sign in</button>
+        </form>
+        <p class="help"><a href="{% url 'accounts:password_reset' %}">Forgot password?</a></p>
+      </section>
+    </main>
+  </body>
+</html>

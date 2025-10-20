@@ -17,13 +17,14 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
         prompt=prompt,
         user=user,
     )
-    token_count = count_tokens_text(document_pages, settings.LLM_MODEL) if document_pages else 0
+    complete_text = '\n\n'.join(page.text for page in document_pages)
+    token_count = count_tokens_text(complete_text, settings.LLM_MODEL) if document_pages else 0
     if token_count > MAX_TOKENS:
         context = ''
         page_count = 0
         token_count = 0
         start_page = 1
-        for page, page_number in enumerate(document_pages, start=1):
+        for page_number, page in enumerate(document_pages, start=1):
             page_text = page.text
             token_count += count_tokens_text(page_text, settings.LLM_MODEL)
             if token_count < MAX_TOKENS:
@@ -54,11 +55,11 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
                 output_markdown=response_text,
             )
     else:
-        response_text, usage = chat_markdown(prompt, document_pages, model=settings.LLM_MODEL, temperature=0.2, max_tokens=MAX_TOKENS)
+        response_text, usage = chat_markdown(prompt, complete_text, model=settings.LLM_MODEL, temperature=0.2, max_tokens=MAX_TOKENS)
         chunk = FormatterChunk.objects.create(
             run=formatter_run,
             pages=f"1-{document_pages.count()}",
-            input_chars=document_pages.count() * MAX_CHARS,
+            input_chars=len(complete_text),
             input_tokens=usage['prompt_tokens'],
             output_tokens=usage['completion_tokens'],
             output_markdown=response_text,
