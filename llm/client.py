@@ -3,6 +3,8 @@ from typing import Tuple, Dict, Any
 from django.conf import settings
 from openai import OpenAI
 
+from .prompts import SYSTEM_PROMPT
+
 _MD_SUFFIX = (
     "You are a formatting engine.\n"
     "Always return GitHub-Flavored Markdown (GFM) as final output."
@@ -16,14 +18,13 @@ def client() -> OpenAI:
         _client = OpenAI(api_key=getattr(settings, "OPENAI_API_KEY", None))
     return _client
 
-def chat_markdown(instruction: str, prompt: str, *, model: str, temperature: float, max_tokens: int) -> tuple[str, dict]:
-    system_prompt = (instruction or "").strip()
-    if "markdown" not in system_prompt.lower():
-        system_prompt = f"{system_prompt}\n\n{_MD_SUFFIX}".strip()
+def chat_markdown(instruction: str, context: str, *, model: str, temperature: float, max_tokens: int) -> tuple[str, dict]:
+    system_prompt = SYSTEM_PROMPT
+    user_prompt = f"<ocr>\n{context}\n</ocr>\n<task>\n{instruction}\n</task>"
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
+        {"role": "user", "content": user_prompt},
     ]
 
     response = client().chat.completions.create(

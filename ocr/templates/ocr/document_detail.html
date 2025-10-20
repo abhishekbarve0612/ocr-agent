@@ -5,6 +5,9 @@
   <h1>OCR Job #{{ document.id }}</h1>
   <p>Status: {{ document.status }}</p>
   {% if document.error_message %}<pre style="color:red">{{ document.error_message }}</pre>{% endif %}
+  {% if pages %}
+  <p><a href="{% url 'formatter:start' document.id %}">Format this document</a></p>
+  {% endif %}
 
   <h2>Pages</h2>
   <ul>

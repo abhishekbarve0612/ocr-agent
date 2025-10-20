@@ -24,5 +24,6 @@ urlpatterns = [
     path('uploads/', include('uploads.urls')),
     path('ocr/', include(('ocr.urls', 'ocr'), namespace='ocr')),
     path('llm/', include(('llm.urls', 'llm'), namespace='llm')),
+    path('formatter/', include(('formatter.urls', 'formatter'), namespace='formatter')),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

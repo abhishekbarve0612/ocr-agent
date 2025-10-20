@@ -16,8 +16,8 @@ def start_ocr(request, file_id: int):
             languages = form.cleaned_data['languages'] or 'eng'
             
             document = OCRDocument.objects.filter(document=file_obj).order_by('-created_at').first()
-            print(f"Documents: {document.id}")
             if document:
+                print(f"Document: {document.id}")
                 from django.urls import reverse
                 return redirect(f"{reverse('ocr:document_detail', kwargs={'file_id': document.id})}?page_range={page_range}")
             else:

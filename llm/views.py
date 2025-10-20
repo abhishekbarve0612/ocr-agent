@@ -82,8 +82,11 @@ def generate(request: HttpRequest):
 
     try:
         content, usage = chat_markdown(
-            instruction, prompt,
-            model=model, temperature=temperature, max_tokens=max_tokens
+            instruction=instruction,
+            context=prompt,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
         job.response_md = content
         job.input_tokens = usage.get("prompt_tokens")
