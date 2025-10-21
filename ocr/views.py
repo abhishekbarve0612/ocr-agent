@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-
+from django.contrib.auth.decorators import login_required
 from uploads.models import UploadedFile
 from .models import OCRDocument, OCRPage
 from .forms import OCRStartForm
 from .services import get_ocr_doc_results, azure_read_text, parse_page_range
 
+@login_required
 def start_ocr(request, file_id: int):
     file_obj = get_object_or_404(UploadedFile, id=file_id)
     

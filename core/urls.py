@@ -21,7 +21,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('uploads/', include('uploads.urls')),
+    path('', include('uploads.urls')),
     path('ocr/', include(('ocr.urls', 'ocr'), namespace='ocr')),
     path('llm/', include(('llm.urls', 'llm'), namespace='llm')),
     path('formatter/', include(('formatter.urls', 'formatter'), namespace='formatter')),
