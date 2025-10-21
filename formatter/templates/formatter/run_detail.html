@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Formatter Run #{{ run.id }}</title>
+</head>
+<body>
+  <h1>Formatter Run #{{ run.id }}</h1>
+  <p>Status: {{ run.status }}</p>
+  {% if run.error %}
+    <pre style="color:red">{{ run.error }}</pre>
+  {% endif %}
+
+  <p>
+    <a href="{% url 'formatter:run_download' run.id %}">Download Markdown</a>
+  </p>
+
+  {% if markdown_content %}
+    <h2>Markdown Output</h2>
+    <pre style="white-space:pre-wrap">{{ markdown_content }}</pre>
+  {% else %}
+    <p>No formatter output is available yet.</p>
+  {% endif %}
+
+  <p><a href="{% url 'ocr:document_detail' run.ocr_document.id %}">Back to OCR document</a></p>
+</body>
+</html>

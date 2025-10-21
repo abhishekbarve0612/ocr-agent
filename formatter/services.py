@@ -47,6 +47,7 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
 
     try:
         token_count = count_tokens_text(complete_text, settings.LLM_MODEL)
+        print('token count = ', token_count)
         if token_count > MAX_INPUT_TOKENS:
             context_fragments: list[str] = []
             context_page_numbers: list[int] = []
@@ -55,6 +56,8 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
             for page in pages:
                 page_text = page.text or ""
                 page_tokens = count_tokens_text(page_text, settings.LLM_MODEL)
+                print('page text ------------------------------', page_text)
+                print('1page tokens ------------------------------', page_tokens)
 
                 if context_fragments and context_tokens + page_tokens > MAX_INPUT_TOKENS:
                     context_text = "".join(context_fragments)
@@ -65,6 +68,7 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
                         temperature=0.2,
                         max_tokens=MAX_OUTPUT_TOKENS,
                     )
+                    print('1response ------------------------------', response_text)
                     FormatterChunk.objects.create(
                         run=formatter_run,
                         pages=_format_page_label(context_page_numbers),
@@ -92,6 +96,9 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
                     temperature=0.2,
                     max_tokens=MAX_OUTPUT_TOKENS,
                 )
+                
+                print('2response ------------------------------', response_text)
+                print('u2sage ------------------------------', usage)
                 FormatterChunk.objects.create(
                     run=formatter_run,
                     pages=_format_page_label(context_page_numbers),
@@ -110,6 +117,8 @@ def run_formatter_job(ocr_document: OCRDocument, prompt: str, user: User):
                 temperature=0.2,
                 max_tokens=MAX_OUTPUT_TOKENS,
             )
+            print('3complete response ------------------------------', response_text)
+            print('3complete usage ------------------------------', usage)
             FormatterChunk.objects.create(
                 run=formatter_run,
                 pages=_format_page_label([pages[0].page_number, pages[-1].page_number]),

@@ -77,6 +77,7 @@ def document_detail(request, file_id: int):
     else:
         pages = document.pages.all()
     full_text = '\n\n'.join(page.text for page in pages)
+    formatter_runs = document.formatter_runs.order_by('-created_at')
     return render(
         request,
         'ocr/document_detail.html',
@@ -84,5 +85,6 @@ def document_detail(request, file_id: int):
             'document': document,
             'pages': pages,
             'full_text': full_text,
+            'formatter_runs': formatter_runs,
         }
     )

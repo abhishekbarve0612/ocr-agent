@@ -9,6 +9,18 @@
   <p><a href="{% url 'formatter:start' document.id %}">Format this document</a></p>
   {% endif %}
 
+  {% if formatter_runs %}
+  <h2>Formatter Runs</h2>
+  <ul>
+    {% for run in formatter_runs %}
+      <li>
+        Run #{{ run.id }} - {{ run.get_status_display }}
+        <a href="{% url 'formatter:run_detail' run.id %}">View output</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
   <h2>Pages</h2>
   <ul>
     {% for p in pages %}
