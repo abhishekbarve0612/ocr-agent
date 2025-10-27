@@ -5,10 +5,8 @@
 </head>
 <body>
   <h1>Formatter Run #{{ run.id }}</h1>
-  <p>Status: {{ run.status }}</p>
-  {% if run.error %}
-    <pre style="color:red">{{ run.error }}</pre>
-  {% endif %}
+  <p>Status: <span id="run-status">{{ run.get_status_display }}</span></p>
+  <pre id="run-error" style="color:red;{% if not run.error %} display:none;{% endif %}">{{ run.error }}</pre>
 
   <p>
     <a href="{% url 'formatter:run_download' run.id %}">Download Markdown</a>
@@ -16,11 +14,60 @@
 
   {% if markdown_content %}
     <h2>Markdown Output</h2>
-    <pre style="white-space:pre-wrap">{{ markdown_content }}</pre>
+    <pre id="markdown-output" style="white-space:pre-wrap">{{ markdown_content }}</pre>
   {% else %}
-    <p>No formatter output is available yet.</p>
+    <p id="no-output">No formatter output is available yet.</p>
+    <pre id="markdown-output" style="white-space:pre-wrap; display:none;"></pre>
   {% endif %}
 
   <p><a href="{% url 'ocr:document_detail' run.ocr_document.id %}">Back to OCR document</a></p>
+
+  <script>
+    const statusEl = document.getElementById('run-status');
+    const errorEl = document.getElementById('run-error');
+    const contentEl = document.getElementById('markdown-output');
+    const placeholderEl = document.getElementById('no-output');
+
+    async function pollRun() {
+      try {
+        const response = await fetch(`${window.location.pathname}?format=json`, {
+          headers: { 'Accept': 'application/json' },
+        });
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        statusEl.textContent = data.status_display || data.status || '';
+        if (data.error) {
+          errorEl.style.display = '';
+          errorEl.textContent = data.error;
+        } else {
+          errorEl.style.display = 'none';
+          errorEl.textContent = '';
+        }
+
+        if (data.markdown_content) {
+          contentEl.style.display = '';
+          contentEl.textContent = data.markdown_content;
+          if (placeholderEl) {
+            placeholderEl.style.display = 'none';
+          }
+        }
+
+        if (data.status === 'completed' || data.status === 'failed') {
+          clearInterval(pollTimer);
+        }
+      } catch (err) {
+        statusEl.textContent = `Error: ${err.message}`;
+      }
+    }
+
+    const pollTimer = setInterval(pollRun, 2000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        pollRun();
+      }
+    });
+  </script>
 </body>
 </html>

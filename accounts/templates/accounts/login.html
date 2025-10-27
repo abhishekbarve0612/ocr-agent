@@ -125,6 +125,11 @@
         {% if form.non_field_errors %}<div class="alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
         <form method="post" action="{% url 'accounts:login' %}">
           {% csrf_token %}
+          {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+          {% elif next %}
+          <input type="hidden" name="{{ redirect_field_name|default:'next' }}" value="{{ request.GET.next }}">
+          {% endif %}
           <div class="field">
             <label for="{{ form.username.id_for_label }}">Username</label>
             {{ form.username }}

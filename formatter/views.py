@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.text import slugify
 
@@ -23,7 +23,7 @@ def formatter_form(request, document_id: int):
                 prompt=form.cleaned_data['prompt'],
                 user=request.user,
             )
-            return redirect('ocr:document_detail', file_id=run.ocr_document.id)
+            return redirect('formatter:run_detail', run_id=run.id)
     else:
         form = FormatterForm(document=document)
 
@@ -48,6 +48,16 @@ def _load_markdown_output(run: FormatterRun) -> str:
 def formatter_run_detail(request, run_id: int):
     run = get_object_or_404(FormatterRun, id=run_id)
     content = _load_markdown_output(run)
+    if request.GET.get("format") == "json" or request.headers.get("Accept") == "application/json":
+        return JsonResponse(
+            {
+                "run_id": run.id,
+                "status": run.status,
+                "status_display": run.get_status_display(),
+                "error": run.error,
+                "markdown_content": content,
+            }
+        )
     return render(
         request,
         'formatter/run_detail.html',
